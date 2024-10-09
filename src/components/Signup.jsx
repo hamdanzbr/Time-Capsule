@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { changeSignupPage } from '../redux/appSlice';
 import db from '../utils/db'; // Adjust the path if needed
 import { useNavigate } from 'react-router-dom';
-
+// import bcrypt from 'bcrypt'
 const Signup = () => {
   const dispatch = useDispatch();
   const [name, setName] = useState('');
@@ -23,6 +23,8 @@ const Signup = () => {
       return;
     }
   
+    //  const passwordHash=await bcrypt.hash(password,10)
+
     // Generate a mock token (for demonstration purposes)
     const token = Math.random().toString(36).substring(2); // Simple token generation
   
@@ -30,22 +32,23 @@ const Signup = () => {
     const userData = {
       name,
       email,
-      password,
-      token,
+      password, 
     };
   
     try {
       // Store user data in IndexedDB
       await db.users.add(userData);
   
-      // Store the token in localStorage
-      localStorage.setItem('token', token);
-  
+      
       // Confirm the data was saved by retrieving it
       const savedUser = await db.users.where('email').equals(email).first();
       if (savedUser) {
         console.log('User saved successfully:', savedUser);
+        alert('User saved successfully')
         // Optionally navigate to the home page
+        // Store the token in localStorage
+      localStorage.setItem('token', token);
+      localStorage.setItem('userEmail',email)
         navigate('/home');
       } else {
         setError('Failed to save user data.');
