@@ -1,49 +1,22 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { changeSignupPage } from '../redux/appSlice';
-import db from '../utils/db'; // Make sure to adjust the path if necessary
-import { useNavigate } from 'react-router-dom';
+import useLogin from '../hooks/useLogin'; // Import the custom hook
 
-const Login = () => {
-  const dispatch = useDispatch();
+const Login = ({ onSignupClick }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); // State for error handling
-  const navigate = useNavigate();
+
+  const { login, error } = useLogin(); // Destructure login function and error state from the custom hook
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent the default form submission
-  
-    // Check if user exists and password matches
-    const user = await db.users.where('email').equals(email).first();
-  
-    if (!user) {
-      setError('User not found!');
-      return;
-    }
-  
-    if (user.password !== password) {
-      setError('Incorrect password!');
-      return;
-    }
-  
-    // If the login is successful, generate a token
-    const token = Math.random().toString(36).substring(2); // Generate a simple token
-  
-    // Store the token and email in localStorage
-    localStorage.setItem('token', token);
-    localStorage.setItem('userEmail', user.email); // Store the user's email
-  
-    // Navigate to the home page
-    navigate('/home');
+    e.preventDefault();
+    await login(email, password); // Use the custom hook's login function
   };
-  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-transparent">
       <div className="bg-transparent p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6 text-black">Log In</h2>
-        {error && <p className="text-red-500 text-center">{error}</p>} {/* Display error messages */}
+        {error && <p className="text-red-500 text-center">{error}</p>} 
         <form onSubmit={handleSubmit}>
           {/* Email */}
           <div className="mb-4">
@@ -55,7 +28,7 @@ const Login = () => {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required // Ensure this field is required
+              required
             />
           </div>
 
@@ -69,7 +42,7 @@ const Login = () => {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required // Ensure this field is required
+              required
             />
           </div>
 
@@ -89,7 +62,7 @@ const Login = () => {
             Don't have an account?{' '}
             <a
               className="text-orange-600 font-semibold hover:underline"
-              onClick={() => dispatch(changeSignupPage())}
+              onClick={() => onSignupClick()}
             >
               Sign up
             </a>

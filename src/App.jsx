@@ -3,7 +3,9 @@ import './App.css'
 import Intro from './components/Intro'
 import Home from './components/Home'
 import Header from './components/Header'
-import View from './components/View'
+import { lazy, Suspense } from 'react'
+
+const View=lazy(()=>import('./components/View'))
 
 function App() {
   const appRouter=createBrowserRouter([
@@ -24,7 +26,7 @@ function App() {
     },
     {
       path:'/view',
-      element:<View/>
+      element:<Suspense fallback={<h1>Loading.....</h1>}><View/></Suspense>
     }
   ])
   return (

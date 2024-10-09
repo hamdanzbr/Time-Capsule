@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import db from '../utils/db'; // Adjust the path as necessary
-import Header from './Header';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Header from './Header';
 import FileViewer from './FileViewer'; // Import the FileViewer component
+import useFileViewer from '../hooks/useFileViewer'; // Import the custom hook
 
 const View = () => {
-  const [files, setFiles] = useState([]);
-  const [selectedFile, setSelectedFile] = useState(null); // To hold the currently selected file
   const navigate = useNavigate();
+  const { files, selectedFile, handleRowClick, setSelectedFile } = useFileViewer(navigate); // Destructure values and functions from the custom hook
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -15,59 +14,6 @@ const View = () => {
       navigate('/');
     }
   }, [navigate]);
-
-  useEffect(() => {
-    
-    fetchFiles();
-  }, []);
-
-  // Live Timer Logic
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      // Re-fetch files to update time remaining dynamically
-      setFiles((prevFiles) => {
-        return prevFiles.map(file => ({
-          ...file,
-          timeRemaining: getTimeRemaining(file.unlockDate)
-        }));
-      });
-    }, 1000); // Update every second
-
-    // Cleanup the interval on unmount
-    return () => clearInterval(intervalId);
-  }, []);
-
-  const fetchFiles = async () => {
-    const allFiles = await db.files.toArray(); // Fetch all files from IndexedDB
-    const userEmail = localStorage.getItem('userEmail'); // Get current user's email
-
-    // Filter files to only include those that belong to the user
-    const userFiles = allFiles.filter(file => file.userEmail === userEmail);
-    setFiles(userFiles);
-  };
-
-  const handleRowClick = (file) => {
-    const currentDateTime = new Date();
-    if (new Date(file.unlockDate) <= currentDateTime) {
-      setSelectedFile(file); // Open the file in FileViewer
-    } else {
-      alert('This file is locked until the unlock time has passed.');
-    }
-  };
-
-  const getTimeRemaining = (unlockDate) => {
-    const currentDateTime = new Date();
-    const remainingTime = new Date(unlockDate) - currentDateTime;
-    const seconds = Math.floor((remainingTime / 1000) % 60);
-    const minutes = Math.floor((remainingTime / (1000 * 60)) % 60);
-    const hours = Math.floor((remainingTime / (1000 * 60 * 60)) % 24);
-    const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
-
-    // If time remaining is 0 or less, return 'Ready'
-    return remainingTime > 0
-      ? `${days}d ${hours}h ${minutes}m ${seconds}s`
-      : 'Ready';
-  };
 
   return (
     <div>
@@ -88,16 +34,16 @@ const View = () => {
             </tr>
           ) : (
             files.map((file, index) => {
-              const timeRemaining = getTimeRemaining(file.unlockDate);
+              const timeRemaining = file.timeRemaining; 
               return (
                 <tr
                   key={index}
                   onClick={() => handleRowClick(file)}
-                  className={`cursor-pointer ${timeRemaining !== 'Ready' ? 'bg-gray-200' : 'bg-gray-300'}`}
+                  className={`cursor-pointer ${timeRemaining !== 'Ready' ? 'bg-gray-200' : 'bg-green-300'} hover:bg-blue-500`}
                 >
-                  <td className="border border-gray-300 p-2">{file.file.name}</td>
-                  <td className="border border-gray-300 p-2">{file.unlockDate}</td>
-                  <td className="border border-gray-300 p-2">{timeRemaining}</td>
+                  <td className="border border-gray-300 p-2">📁 {file.file ? file.file.name : 'Text File'}</td>
+                  <td className="border border-gray-300 p-2 text-center">{file.unlockDate}</td>
+                  <td className="border border-gray-300 p-2 text-center">{timeRemaining}</td>
                 </tr>
               );
             })

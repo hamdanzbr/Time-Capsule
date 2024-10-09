@@ -1,64 +1,17 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { changeSignupPage } from '../redux/appSlice';
-import db from '../utils/db'; // Adjust the path if needed
-import { useNavigate } from 'react-router-dom';
-// import bcrypt from 'bcrypt'
-const Signup = () => {
-  const dispatch = useDispatch();
+import useSignup from '../hooks/useSignup'; // Import the custom hook
+
+const Signup = ({ onLoginClick }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
 
-  const navigate=useNavigate()
+  const { signup, error } = useSignup(); // Destructure the signup function and error from the custom hook
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Check if the user already exists
-    const existingUser = await db.users.where('email').equals(email).first();
-    if (existingUser) {
-      setError('User already exists!');
-      return;
-    }
-  
-    //  const passwordHash=await bcrypt.hash(password,10)
-
-    // Generate a mock token (for demonstration purposes)
-    const token = Math.random().toString(36).substring(2); // Simple token generation
-  
-    // Prepare the user data
-    const userData = {
-      name,
-      email,
-      password, 
-    };
-  
-    try {
-      // Store user data in IndexedDB
-      await db.users.add(userData);
-  
-      
-      // Confirm the data was saved by retrieving it
-      const savedUser = await db.users.where('email').equals(email).first();
-      if (savedUser) {
-        console.log('User saved successfully:', savedUser);
-        alert('User saved successfully')
-        // Optionally navigate to the home page
-        // Store the token in localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('userEmail',email)
-        navigate('/home');
-      } else {
-        setError('Failed to save user data.');
-      }
-    } catch (error) {
-      console.error('Error saving user data:', error);
-      setError('An error occurred during signup. Please try again.');
-    }
+    await signup(name, email, password); // Use the custom hook's signup function
   };
-  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -123,7 +76,7 @@ const Signup = () => {
             Already have an account?{' '}
             <a
               className="text-orange-600 font-semibold hover:underline"
-              onClick={() => dispatch(changeSignupPage())}
+              onClick={onLoginClick}
             >
               Log in
             </a>
