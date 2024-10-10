@@ -3,7 +3,6 @@ import ReactPlayer from 'react-player';
 
 const FileViewer = ({ file, onClose }) => {
     const fileURL = useRef(file.file ? URL.createObjectURL(file.file) : null);    
-    console.log(fileURL);
     
     useEffect(() => {
         fileURL.current = file.file ? URL.createObjectURL(file.file) : null;

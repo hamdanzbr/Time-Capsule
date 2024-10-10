@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
-import FileViewer from './FileViewer'; // Import the FileViewer component
-import useFileViewer from '../hooks/useFileViewer'; // Import the custom hook
+import FileViewer from './FileViewer';
+import useFileViewer from '../hooks/useFileViewer'; 
+import { formatDate } from '../utils/constants';
 
 const View = () => {
   const navigate = useNavigate();
-  const { files, selectedFile, handleRowClick, setSelectedFile } = useFileViewer(navigate); // Destructure values and functions from the custom hook
+  const { files, selectedFile, handleRowClick, setSelectedFile } = useFileViewer(navigate); 
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -23,6 +24,7 @@ const View = () => {
         <thead>
           <tr>
             <th className="border border-gray-300 p-2">File Name</th>
+            <th className="border border-gray-300 p-2">Capsule Name</th>
             <th className="border border-gray-300 p-2">Capsule Created</th>
             <th className="border border-gray-300 p-2">Unlock Date</th>
             <th className="border border-gray-300 p-2">Time Remaining</th>
@@ -39,12 +41,13 @@ const View = () => {
               return (
                 <tr
                   key={file.id}
-                  onClick={() => handleRowClick(file)}
+                  onDoubleClick={() => handleRowClick(file)}
                   className={`cursor-pointer ${timeRemaining !== 'Ready' ? 'bg-gray-200' : 'bg-green-300'} hover:bg-blue-500`}
                 >
                   <td className="border border-gray-300 p-2">📁 {file.file ? file.file.name : 'Text File'}</td>
-                  <td className="border border-gray-300 p-2 text-center">{file.unlockDate}</td>
-                  <td className="border border-gray-300 p-2 text-center">{file.createdAt}</td>
+                  <td className="border border-gray-300 p-2 text-center">{file.timeCapsuleName}</td>  
+                  <td className="border border-gray-300 p-2 text-center">{formatDate (file.unlockDate)}</td>
+                  <td className="border border-gray-300 p-2 text-center">{formatDate(file.createdAt)}</td>
                   <td className="border border-gray-300 p-2 text-center">{timeRemaining}</td>
                 </tr>
               );
