@@ -23,6 +23,7 @@ const View = () => {
         <thead>
           <tr>
             <th className="border border-gray-300 p-2">File Name</th>
+            <th className="border border-gray-300 p-2">Capsule Created</th>
             <th className="border border-gray-300 p-2">Unlock Date</th>
             <th className="border border-gray-300 p-2">Time Remaining</th>
           </tr>
@@ -33,16 +34,17 @@ const View = () => {
               <td colSpan="3" className="text-center border border-gray-300 p-2">No files available</td>
             </tr>
           ) : (
-            files.map((file, index) => {
+            files.map((file) => {
               const timeRemaining = file.timeRemaining; 
               return (
                 <tr
-                  key={index}
+                  key={file.id}
                   onClick={() => handleRowClick(file)}
                   className={`cursor-pointer ${timeRemaining !== 'Ready' ? 'bg-gray-200' : 'bg-green-300'} hover:bg-blue-500`}
                 >
                   <td className="border border-gray-300 p-2">📁 {file.file ? file.file.name : 'Text File'}</td>
                   <td className="border border-gray-300 p-2 text-center">{file.unlockDate}</td>
+                  <td className="border border-gray-300 p-2 text-center">{file.createdAt}</td>
                   <td className="border border-gray-300 p-2 text-center">{timeRemaining}</td>
                 </tr>
               );

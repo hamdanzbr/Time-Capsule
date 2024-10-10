@@ -2,21 +2,18 @@ import React, { useEffect, useRef } from 'react';
 import ReactPlayer from 'react-player';
 
 const FileViewer = ({ file, onClose }) => {
-    const fileURL = useRef(file.file ? URL.createObjectURL(file.file) : null);
+    const fileURL = useRef(file.file ? URL.createObjectURL(file.file) : null);    
     console.log(fileURL);
-    
-
-    useEffect(() => {
-      return () => {
-        if (fileURL.current) {
-          console.log('Revoking URL:', fileURL.current);
-          URL.revokeObjectURL(fileURL.current);
-        }
-      };
-    }, []);
     
     useEffect(() => {
         fileURL.current = file.file ? URL.createObjectURL(file.file) : null;
+
+        return () => {
+            if (fileURL.current) {
+              URL.revokeObjectURL(fileURL.current);
+            }
+          };
+
     }, [file]);
 
     return (

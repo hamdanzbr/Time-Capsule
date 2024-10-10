@@ -6,16 +6,16 @@ const useFileViewer = (navigate) => {
   const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
-    const fetchFiles = async () => {
-      const allFiles = await db.files.toArray(); 
-      const userEmail = localStorage.getItem('userEmail'); 
-
-      const userFiles = allFiles.filter(file => file.userEmail === userEmail);
-      setFiles(userFiles);
-    };
-
     fetchFiles();
   }, []);
+
+  const fetchFiles = async () => {
+    const allFiles = await db.files.toArray(); 
+    const userEmail = localStorage.getItem('userEmail'); 
+
+    const userFiles = allFiles.filter(file => file.userEmail === userEmail);
+    setFiles(userFiles);
+  };
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -23,15 +23,15 @@ const useFileViewer = (navigate) => {
         // Update the time remaining for each file
         const updatedFiles = prevFiles.map(file => {
           const timeRemaining = getTimeRemaining(file.unlockDate);
-          return {
+          return { 
             ...file,
             timeRemaining,
           };
         });
 
         // Check if all files are ready, and if so, clear the interval
-        const allFilesReady = updatedFiles.every(file => file.timeRemaining === 'Ready');
-        if (allFilesReady) {
+        const isAllFilesReady = updatedFiles.every(file => file.timeRemaining === 'Ready');
+        if (isAllFilesReady) {
           clearInterval(intervalId); // Clear the interval when all files are ready
         }
 

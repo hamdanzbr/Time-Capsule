@@ -18,7 +18,7 @@ const useSignup = () => {
       });
 
       const data = await response.json();
-
+      
       if (response.ok) {
         localStorage.setItem('token', data.data.token);
         localStorage.setItem('userEmail', data.data.email); 

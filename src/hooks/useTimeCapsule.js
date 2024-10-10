@@ -12,14 +12,15 @@ const useTimeCapsule = () => {
     if (!token) {
       navigate('/'); 
     }
-  }, [navigate]);
+  }, [unlockDate,navigate]);
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    setFile(e.target.files[0]);        
   };
 
   const handleDateChange = (e) => {
     setUnlockDate(e.target.value);
+    
   };
 
   const handleSubmit = async (e) => {
@@ -43,15 +44,15 @@ const useTimeCapsule = () => {
     };
 
     try {
-      if (file.type.startsWith('text/')) {
+      if (file.type.startsWith('text/')) {        
         const textContent = await file.text(); // Read the text content
         await db.files.add({ ...fileData, fileType: 'text', fileContent: textContent });
-      } else {
+      } else {  
         fileData.file = file; 
         fileData.fileType = file.type.startsWith('image/') ? 'image' : 'video';
         await db.files.add(fileData);
       }
-
+  
       alert('File uploaded successfully!');
       setFile(null);
       setUnlockDate('');
