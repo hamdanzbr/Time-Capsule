@@ -20,12 +20,24 @@ const useFileViewer = (navigate) => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       setFiles((prevFiles) => {
-        return prevFiles.map(file => ({
-          ...file,
-          timeRemaining: getTimeRemaining(file.unlockDate),
-        }));
+        // Update the time remaining for each file
+        const updatedFiles = prevFiles.map(file => {
+          const timeRemaining = getTimeRemaining(file.unlockDate);
+          return {
+            ...file,
+            timeRemaining,
+          };
+        });
+
+        // Check if all files are ready, and if so, clear the interval
+        const allFilesReady = updatedFiles.every(file => file.timeRemaining === 'Ready');
+        if (allFilesReady) {
+          clearInterval(intervalId); // Clear the interval when all files are ready
+        }
+
+        return updatedFiles;
       });
-    }, 1000); 
+    }, 1000);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -38,7 +50,7 @@ const useFileViewer = (navigate) => {
     const hours = Math.floor((remainingTime / (1000 * 60 * 60)) % 24);
     const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
 
-    // If time remaining is 0 or less, return 'Ready'
+    // Return 'Ready' if the time is 0 or less
     return remainingTime > 0
       ? `${days}d ${hours}h ${minutes}m ${seconds}s`
       : 'Ready';
