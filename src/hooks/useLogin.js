@@ -1,37 +1,28 @@
 import { useState } from 'react';
-import db from '../utils/db'; // Adjust the path if needed
+import axios from 'axios'; 
 import { useNavigate } from 'react-router-dom';
+import { BASE_URL } from '../utils/constants'; 
 
 const useLogin = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const login = async (email, password) => {
-    setError(''); // Reset the error state
+    setError('');
+    try {
+      const response = await axios.post(`${BASE_URL}/login`, { email, password }, {
+        withCredentials: true, 
+      });
 
-    // Check if the user exists
-    const user = await db.users.where('email').equals(email).first();
+      const { token, data } = response.data;
 
-    if (!user) {
-      setError('User not found!');
-      return;
+      localStorage.setItem('token', token);
+      localStorage.setItem('userEmail', data.email);
+      localStorage.setItem('username',data.username)
+      navigate('/home');
+    } catch (err) {
+      setError('Invalid email or password!');
     }
-
-    // Check if the password matches
-    if (user.password !== password) {
-      setError('Incorrect password!');
-      return;
-    }
-
-    // Generate a simple token (for demonstration purposes)
-    const token = Math.random().toString(36).substring(2);
-
-    // Store token and user email in localStorage
-    localStorage.setItem('token', token);
-    localStorage.setItem('userEmail', user.email);
-
-    // Navigate to the home page
-    navigate('/home');
   };
 
   return { login, error };

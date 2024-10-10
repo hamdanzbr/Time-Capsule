@@ -1,52 +1,35 @@
 import { useState } from 'react';
-import db from '../utils/db'; // Adjust the path if needed
 import { useNavigate } from 'react-router-dom';
+import { BASE_URL } from '../utils/constants';
 
 const useSignup = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const signup = async (name, email, password) => {
-    // Reset the error state
     setError('');
 
-    // Check if the user already exists
-    const existingUser = await db.users.where('email').equals(email).first();
-    if (existingUser) {
-      setError('User already exists!');
-      return;
-    }
-
-    // Generate a simple token for demonstration purposes
-    const token = Math.random().toString(36).substring(2);
-
-    const userData = {
-      name,
-      email,
-      password, // Store the password here (consider hashing in production)
-    };
-
     try {
-      // Store user data in IndexedDB
-      await db.users.add(userData);
+      const response = await fetch(`${BASE_URL}/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: name, email, password })
+        
+      });
 
-      // Retrieve the saved user to confirm the operation
-      const savedUser = await db.users.where('email').equals(email).first();
-      if (savedUser) {
-        console.log('User saved successfully:', savedUser);
-        alert('User saved successfully');
+      const data = await response.json();
 
-        // Store the token in localStorage
-        localStorage.setItem('token', token);
-        localStorage.setItem('userEmail', email);
-
-        // Navigate to the home page
+      if (response.ok) {
+        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('userEmail', data.data.email); 
+        localStorage.setItem('username',data.data.username)
+        
         navigate('/home');
       } else {
-        setError('Failed to save user data.');
+        setError(data.message || 'Signup failed. Please try again.');
       }
-    } catch (error) {
-      console.error('Error saving user data:', error);
+    } catch (err) {
+      console.error('Signup error:', err);
       setError('An error occurred during signup. Please try again.');
     }
   };

@@ -1,50 +1,92 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios'; 
 import { Link, useNavigate } from 'react-router-dom';
+import { BASE_URL } from '../utils/constants'; 
+import { AiOutlineLogout } from 'react-icons/ai';
 
 const Header = () => {
-  const navigate = useNavigate(); // Use the useNavigate hook for navigation
+    const navigate = useNavigate(); 
+    const username = localStorage.getItem('username'); 
+    const [isDropdownOpen, setDropdownOpen] = useState(false); 
 
-  const handleLogout = () => {
-    // Clear the token from local storage
-    localStorage.removeItem('token');
-    localStorage.removeItem('userEmail')
-    // Optionally clear user data from IndexedDB if needed
-    // db.users.clear(); // Uncomment if you want to clear user data on logout
+    const handleLogout = async () => {
+        try {
+            await axios.post(`${BASE_URL}/logout`, {}, {
+                withCredentials: true, 
+            });
 
-    // Redirect to the signup page
-    navigate('/');
-  };
+            localStorage.removeItem('token');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('username');
 
-  return (
-    <header className="bg-gray-800 text-white py-4 shadow-lg">
-      <div className="container mx-auto flex justify-between items-center">
-        {/* Logo or Title */}
-        <h1 className="text-2xl font-bold">
-          <Link to="/" className="text-white hover:text-teal-300">Time Capsule</Link>
-        </h1>
+            navigate('/');
+        } catch (error) {
+            console.error('Logout failed', error);
+        }
+    };
 
-        {/* Navigation Links */}
-        <nav>
-          <ul className="flex space-x-6">
-            <li>
-              <Link to="/home" className="text-white hover:text-teal-300">Home</Link>
-            </li>
-            <li>
-              <Link to="/view" className="text-white hover:text-teal-300">View Unlocked Files</Link>
-            </li>
-            <li>
-              <button
-                onClick={handleLogout} // Call the handleLogout function on click
-                className="text-white hover:text-teal-300"
-              >
-                Logout
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </header>
-  );
+    const handleDropdownToggle = () => {
+        setDropdownOpen(!isDropdownOpen); 
+    };
+
+    const dropdownRef = useRef();
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdownOpen(false); 
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [dropdownRef]);
+
+    return (
+        <header className="bg-gray-800 text-white py-4 shadow-lg">
+            <div className="container mx-auto flex justify-between items-center">
+                {/* Logo or Title */}
+                <h1 className="text-2xl font-bold">
+                    <Link to="/" className="text-white hover:text-teal-300">Time Capsule</Link>
+                </h1>
+
+                <nav className="mr-6">
+                    <ul className="flex space-x-8">
+                        <li>
+                            <Link to="/home" className="text-white accent-lime-900 hover:text-teal-300">Home</Link>
+                        </li>
+                        <li>
+                            <Link to="/view" className="text-white hover:text-teal-300">View Files</Link>
+                        </li>
+
+                        <li ref={dropdownRef} className="relative">
+                            <button
+                                onClick={handleDropdownToggle}
+                                className="text-white hover:text-teal-300 bg-red-600 p-1 rounded-lg px-2"
+                            >
+                                {username} ⛛
+                            </button>
+
+                            {isDropdownOpen && (
+                                <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg rounded-lg z-10">
+                                    <ul>
+                                        <li className="block px-4 py-2 hover:bg-gray-200">
+                                            <button onClick={handleLogout} className="w-full text-left flex items-center justify-center">
+                                                <span>Logout</span>
+                                                <AiOutlineLogout className='text-red-600' />
+                                            </button>
+                                        </li>
+
+                                    </ul>
+                                </div>
+                            )}
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+    );
 };
 
 export default Header;

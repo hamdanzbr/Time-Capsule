@@ -34,23 +34,20 @@ const useTimeCapsule = () => {
       return;
     }
 
-    const userEmail = localStorage.getItem('userEmail'); // Assume you saved the user's email during login
+    const userEmail = localStorage.getItem('userEmail'); 
     
-    // Create a user object
     const fileData = {
       unlockDate: unlockDate,
       createdAt: new Date().toISOString(),
-      userEmail: userEmail, // Store the user's email or ID
+      userEmail: userEmail, 
     };
 
     try {
-      // For text files, read the content
       if (file.type.startsWith('text/')) {
         const textContent = await file.text(); // Read the text content
         await db.files.add({ ...fileData, fileType: 'text', fileContent: textContent });
       } else {
-        // For images and videos, store the file object directly
-        fileData.file = file; // Add file object for images/videos
+        fileData.file = file; 
         fileData.fileType = file.type.startsWith('image/') ? 'image' : 'video';
         await db.files.add(fileData);
       }

@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-import useLogin from '../hooks/useLogin'; // Import the custom hook
+import useLogin from '../hooks/useLogin'; 
 
 const Login = ({ onSignupClick }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const { login, error } = useLogin(); // Destructure login function and error state from the custom hook
+  const { login, error } = useLogin(); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(email, password); // Use the custom hook's login function
+    await login(email, password); 
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-transparent">
-      <div className="bg-transparent p-8 rounded-lg shadow-lg w-full max-w-md">
+      <div className="bg-blue-400 p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6 text-black">Log In</h2>
         {error && <p className="text-red-500 text-center">{error}</p>} 
         <form onSubmit={handleSubmit}>
