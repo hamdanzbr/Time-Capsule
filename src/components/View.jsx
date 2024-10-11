@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
-import FileViewer from './FileViewer';
 import useFileViewer from '../hooks/useFileViewer'; 
 import { formatDate } from '../utils/constants';
+const FileViewer=lazy(()=>import ('./FileViewer'))
 
 const View = () => {
   const navigate = useNavigate();
@@ -46,8 +46,8 @@ const View = () => {
                 >
                   <td className="border border-gray-300 p-2">📁 {file.file ? file.file.name : 'Text File'}</td>
                   <td className="border border-gray-300 p-2 text-center">{file.timeCapsuleName}</td>  
-                  <td className="border border-gray-300 p-2 text-center">{formatDate (file.unlockDate)}</td>
                   <td className="border border-gray-300 p-2 text-center">{formatDate(file.createdAt)}</td>
+                  <td className="border border-gray-300 p-2 text-center">{formatDate (file.unlockDate)}</td>
                   <td className="border border-gray-300 p-2 text-center">{timeRemaining}</td>
                 </tr>
               );
@@ -58,11 +58,16 @@ const View = () => {
 
       {/* Conditionally render FileViewer */}
       {selectedFile && (
-        <FileViewer
-          file={selectedFile}
-          onClose={() => setSelectedFile(null)} // Close the modal
-        />
-      )}
+  <div className='h-screen w-screen flex justify-center items-center '>
+    <Suspense fallback={<h1>Loading...</h1>}>
+      <FileViewer
+        file={selectedFile}
+        onClose={() => setSelectedFile(null)}
+      />
+    </Suspense>
+  </div>
+)}
+
     </div>
   );
 };

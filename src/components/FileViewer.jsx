@@ -11,16 +11,15 @@ const FileViewer = ({ file, onClose }) => {
             if (fileURL.current) {
               URL.revokeObjectURL(fileURL.current);
             }
-          };
-
+        };
     }, [file]);
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-3xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center overflow-auto">
+            <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-3xl h-full max-h-[90vh] overflow-auto"> 
                 <h3 className="text-xl font-bold mb-4">{file.file ? file.file.name : 'Text File'}</h3>
 
-                <div className="relative w-full h-auto max-h-[500px] flex justify-center items-center overflow-auto"> 
+                <div className="relative w-full h-auto flex justify-center items-center overflow-auto max-h-[400px]"> 
                     {file.file ? (
                         file.file.type.startsWith('image/') ? (
                             <img 
@@ -36,7 +35,10 @@ const FileViewer = ({ file, onClose }) => {
                             />
                         ) : null
                     ) : (
-                        <div className="text-black mt-96 p-4 overflow-auto">{file.fileContent}</div> 
+                        // Text content with proper height and scrolling enabled
+                        <div className="text-black p-4 overflow-y-auto max-h-[400px] whitespace-pre-wrap">
+                            {file.fileContent}
+                        </div> 
                     )}
                 </div>
 
